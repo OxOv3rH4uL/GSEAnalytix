@@ -13,7 +13,6 @@ class DeviceStatus(enum.Enum):
     created="created"
 
 
-
 class DevicesDB(Base):
     """
     Devices Table Schema 
