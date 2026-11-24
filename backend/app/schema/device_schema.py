@@ -31,5 +31,3 @@ class DeviceResponse(BaseModel):
     tariff_per_kwh: Decimal
     status: DeviceStatus
     created_at: datetime
-
-

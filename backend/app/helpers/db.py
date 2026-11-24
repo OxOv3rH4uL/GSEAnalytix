@@ -20,5 +20,16 @@ local_session = sessionmaker(
     autoflush=False
 )
 
+
+
+    
 class Base(DeclarativeBase):
     pass
+
+
+def get_db():
+    db = local_session()
+    try:
+        yield db
+    finally:
+        db.close()
