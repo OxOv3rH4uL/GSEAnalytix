@@ -7,7 +7,7 @@ services:
 
     environment:
       POSTGRES_USER: gseanalytix
-      POSTGRED_PASSWORD: gseanalytix
+      POSTGRES_PASSWORD: gseanalytix
       POSTGRES_DB: gseanalytix
     
     ports:
