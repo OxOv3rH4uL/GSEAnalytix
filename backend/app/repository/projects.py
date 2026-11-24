@@ -27,7 +27,7 @@ class ProjectRepository:
         return project
 
     def get_all_projects(
-        self,
+        self
     ) -> list[ProjectsDB]:
         """
         Getting all projects present in the database
@@ -76,7 +76,7 @@ class ProjectRepository:
         self,
         project_name: str,
         project: ProjectsDB
-    ) -> ProjectsDB | None:
+    ) -> ProjectsDB:
         """
         Updating a project details
         """

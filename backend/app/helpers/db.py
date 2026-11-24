@@ -20,8 +20,6 @@ local_session = sessionmaker(
     autoflush=False
 )
 
-
-
     
 class Base(DeclarativeBase):
     pass
