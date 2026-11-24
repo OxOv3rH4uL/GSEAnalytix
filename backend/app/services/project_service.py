@@ -54,7 +54,7 @@ class ProjectService:
         except SQLAlchemyError:
             self._db.rollback()
             logger.exception("Getting Database Error")
-            raise DatabaseError("Failed to created project")
+            raise DatabaseError("Failed to create project")
 
     def get_all_projects(
         self,
@@ -138,7 +138,7 @@ class ProjectService:
         try:
             existing_project = self._repo.get_project_by_id(project_id=project_id)
             if existing_project is None:
-                raise ProjectNotFoundError("Project not found")
+                raise ProjectNotFoundError(f"Project with project_id: '{project_id}' not found")
 
             project_by_name = self._repo.get_project_by_name(project_name=data.project_name)
             if(project_by_name is not None and project_by_name.project_id != project_id):

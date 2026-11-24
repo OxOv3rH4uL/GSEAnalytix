@@ -15,7 +15,7 @@ class DeviceRepository:
         self,
         project_id: UUID,
         device_name: str,
-        tariff_per_kwh: Decimal,
+        tariff_per_kwh: Decimal
     ) -> DevicesDB:
         """
         Creating device for a project
@@ -25,6 +25,7 @@ class DeviceRepository:
         self._db.add(device)
         self._db.flush()
         return device
+
 
     def get_devices_by_project_id(
         self,
@@ -41,6 +42,22 @@ class DeviceRepository:
 
         devices = list(self._db.scalars(query).all())
         return devices
+
+    def get_device_by_name_and_project_name(
+        self,
+        project_name: str,
+        device_name: str
+    ) -> DevicesDB | None:
+        """
+        Get Device Details based on name
+        """
+        logger.debug("Getting device details with the device_name: %s", device_name)
+        query = select(DevicesDB).where(
+            DevicesDB.device_name == device_name,
+            DevicesDB.project_name == project_name
+        )
+        device = self._db.execute(query).scalar_one_or_none()
+        return device
 
     def get_device_by_name_and_project_id(
         self,
@@ -63,7 +80,7 @@ class DeviceRepository:
     def get_device_by_id(
         self,
         device_id: UUID
-    ) -> DevicesDB :
+    ) -> DevicesDB | None :
         """
         Get a device details by its device_id
         """

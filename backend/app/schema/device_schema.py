@@ -6,7 +6,6 @@ from app.helpers.enums import DeviceStatus
 
 
 class DeviceCreateRequest(BaseModel):
-    project_id: UUID
     device_name: str = Field(min_length=1, max_length=100)
     tariff_per_kwh: Decimal = Field(
         gt=0,
