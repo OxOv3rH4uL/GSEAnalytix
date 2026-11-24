@@ -92,6 +92,11 @@ class ProjectService:
             res = ProjectResponse.model_validate(project)
             logger.info("Getting project details with project_id: %s", project_id)
             return res    
+        
+        except ProjectNotFoundError:
+            logger.warning("Project with project_id: %s not found", project_id)
+            self._db.rollback()
+            raise
 
         except SQLAlchemyError:
             logger.exception("Getting Database Error")
@@ -119,6 +124,7 @@ class ProjectService:
                         
         except ProjectNotFoundError:
             logger.warning("Project with project_name: %s is not found", project_name)
+            self._db.rollback()
             raise
             
 
