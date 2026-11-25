@@ -199,7 +199,8 @@ Deletes a device present in a project
 
 @device_router.delete(
     "/{project_id}/devices/{device_id}",
-    status_code = status.HTTP_204_NO_CONTENT
+    response_model= APIResponse[None],
+    status_code = status.HTTP_200_OK
 )
 
 def delete_device(
