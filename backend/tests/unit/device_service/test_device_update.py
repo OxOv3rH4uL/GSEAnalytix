@@ -162,6 +162,7 @@ class TestUpdateDevice:
         mock_device_repo.get_device_by_id.assert_called_once()
         mock_device_repo.update_device.assert_not_called()
         mock_db.commit.assert_not_called()
+    
 
 
 
