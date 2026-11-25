@@ -28,5 +28,5 @@ class DeviceResponse(BaseModel):
     project_id: UUID
     device_name: str
     tariff_per_kwh: Decimal
-    status: DeviceStatus
+    status: DeviceStatus 
     created_at: datetime
