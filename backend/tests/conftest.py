@@ -9,6 +9,7 @@ from app.repository.projects_repository import ProjectRepository
 from app.repository.devices_repository import DeviceRepository
 from app.services.project_service import ProjectService
 from app.services.device_service import DeviceService
+from app.helpers.enums import DeviceStatus
 
 
 
@@ -65,7 +66,9 @@ def sample_device():
         device_id = uuid4(),
         project_id = uuid4(),
         device_name="Generator Machine",
-        tariff_per_kwh = 20.9
+        tariff_per_kwh = 20.9,
+        status = DeviceStatus.created,
+        created_at = datetime.now()
     )
     
 

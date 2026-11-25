@@ -5,12 +5,7 @@ from decimal import Decimal
 from sqlalchemy import UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import mapped_column, Mapped
 from app.helpers.db import Base
-import enum 
-
-class DeviceStatus(enum.Enum):
-    running="running"
-    stopped="stopped"
-    created="created"
+from app.helpers.enums import DeviceStatus
 
 
 class DevicesDB(Base):

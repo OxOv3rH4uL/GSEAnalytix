@@ -216,7 +216,7 @@ class DeviceService:
             existing_project = self._project_repo.get_project_by_id(project_id=project_id)
             if existing_project is None:
                 raise ProjectNotFoundError(f"Project with project_id: {project_id} not found")
-            existing_device = self._device_repo.get_device_by_name_and_project_id(device_id=device_id, project_id=project_id)
+            existing_device = self._device_repo.get_device_by_name_and_project_id(project_id=project_id,device_name=data.device_name)
             if existing_device is None:
                 raise DeviceNotFoundError(f"Device with device_id: '{device_id}' not found")
 

@@ -11,14 +11,10 @@ def error_response(
     status_code: int,
     message : str | None = None
 ) -> JSONResponse:
-    m = ""
-    if message is None:
-        m = None
-    else:
-        m = message
+    
     error = ErrorResponse(
         error = type(e).__name__,
-        message = m        
+        message = message if message is not None else str(e)      
     )
 
     return JSONResponse(
