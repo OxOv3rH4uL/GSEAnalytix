@@ -1,7 +1,7 @@
 #Unit test - Service while DB is mocked
 
 import pytest
-from app.schema.project_schema import ProjectCreateRequest, ProjectResponse, ProjectUpdateRequest
+from app.schema.project_schema import ProjectCreateRequest, ProjectResponse
 from app.core.exceptions import ProjectFoundError
 
 
