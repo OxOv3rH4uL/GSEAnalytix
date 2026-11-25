@@ -25,7 +25,7 @@ class TestReadProject:
         assert isinstance(result[0], ProjectResponse)
         assert result[0].project_id == sample_project.project_id
         assert result[0].project_name == sample_project.project_name
-        assert mock_project_repo.get_all_projects.asset_called_once()
+        mock_project_repo.get_all_projects.asset_called_once()
 
 
     def test_get_project_by_id_success(
@@ -65,5 +65,3 @@ class TestReadProject:
 
         with pytest.raises(ProjectNotFoundError):
             project_service.get_project_by_id(project_id=project_id)
-
-    
