@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, status, Response, HTTPException
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.helpers.db import get_db
 from uuid import UUID
 from app.repository.projects_repository import ProjectRepository
 from app.services.project_service import ProjectService
+from app.schema.api_reponse import APIResponse
+from app.core.exceptions_handler import error_response
 from app.schema.project_schema import ProjectCreateRequest, ProjectUpdateRequest, ProjectResponse
 from app.core.exceptions import ProjectFoundError, ProjectNotFoundError, DatabaseError
 
@@ -24,49 +27,57 @@ Pydantic Validation -> Project Service -> Project Repository -> PostgreSQL
 
 @project_router.post(
     "",
-    response_model=ProjectResponse,
+    response_model=APIResponse[ProjectResponse],
     status_code=status.HTTP_201_CREATED
 )
 def create_project(
     data: ProjectCreateRequest,
     db: Session = Depends(get_db)
-) -> ProjectResponse:
+) -> APIResponse[ProjectResponse] | JSONResponse:
     
     repo = ProjectRepository(db=db)
     service = ProjectService(db=db, repo=repo)
     try:
-        return service.create_project(data)
+        project = service.create_project(data)
+        return APIResponse(
+            message="Project Created Successfully!",
+            data = project
+        )
     
     except ProjectFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_409_CONFLICT
         )
     except DatabaseError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 @project_router.get(
     "",
-    response_model= list[ProjectResponse],
+    response_model= APIResponse[list[ProjectResponse]],
     status_code = status.HTTP_200_OK
 )
 def get_all_project(
     db: Session = Depends(get_db)
-) -> list[ProjectResponse]:
+) -> APIResponse[list[ProjectResponse]] | JSONResponse:
      
     repo = ProjectRepository(db=db)
     service = ProjectService(db=db, repo=repo)
     try:
-        return service.get_all_projects()
+        projects = service.get_all_projects()
+        return APIResponse(
+            message="Projects Retrieved Successfully!",
+            data=projects
+        )
     
     except DatabaseError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 """
@@ -77,28 +88,33 @@ Pydantic Validation -> Project Service -> Project Repository -> PostgreSQL
 
 @project_router.get(
     "/{project_id}",
+    response_model = APIResponse[ProjectResponse],
     status_code = status.HTTP_200_OK
 )
 def get_project_by_id(
     project_id: UUID,
     db: Session = Depends(get_db)
-) -> ProjectResponse:
+) -> APIResponse[ProjectResponse] | JSONResponse:
     
     repo = ProjectRepository(db=db)
     service = ProjectService(db=db, repo=repo)
     try:
-        return service.get_project_by_id(project_id)
+        project = service.get_project_by_id(project_id)
+        return APIResponse(
+            message="Project Retrieved Successfully based on project_id",
+            data = project
+        )
     
     except ProjectNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            details = str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_404_NOT_FOUND
         )
 
     except DatabaseError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -111,35 +127,40 @@ Pydantic Validation -> Project Service -> Project Repository -> PostgreSQL
 
 @project_router.put(
     "/{project_id}",
+    response_model= APIResponse[ProjectResponse],
     status_code= status.HTTP_200_OK,
 ) 
 def update_project(
     project_id: UUID,
     data: ProjectUpdateRequest,
     db: Session = Depends(get_db),
-) -> ProjectResponse:
+) -> APIResponse[ProjectResponse] | JSONResponse:
     repo = ProjectRepository(db=db)
     service = ProjectService(db=db, repo=repo)
 
     try:
-        return service.update_project(project_id=project_id, data=data)
+        project = service.update_project(project_id=project_id, data=data)
+        return APIResponse(
+            message = "Project Updated Successfully!",
+            data = project
+        )
 
     except ProjectNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            details = str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_404_NOT_FOUND
         )
 
     except ProjectFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            details = str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_409_CONFLICT
         )
     
     except DatabaseError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 """
@@ -150,31 +171,36 @@ Pydantic Validation -> Project Service -> Project Repository -> PostgreSQL
 
 @project_router.delete(
     "/{project_id}",
-    status_code = status.HTTP_204_NO_CONTENT
+    response_model= APIResponse[None],
+    status_code = status.HTTP_200_OK  
 )
 
 def delete_project(
     project_id: UUID,
     db: Session = Depends(get_db)
-) -> None:
+) -> APIResponse[None] | JSONResponse:
     
     repo = ProjectRepository(db=db)
     service = ProjectService(db=db, repo=repo)
 
     try:
-        return service.delete_project(project_id=project_id)
+        service.delete_project(project_id=project_id)
+        return APIResponse(
+            message = "Project Deleted Successfully!",
+            data = None
+        )
 
 
     except ProjectNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            details = str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_404_NOT_FOUND
         )
 
     except DatabaseError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details=str(e)
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

@@ -1,0 +1,8 @@
+today
+- end-to-end crud api testing
+- exception messages and global exceptions
+
+tomorrow
+- unit and integration? tests and pagination for bulk reads
+- async event generation and analysis worker and redis streams
+- frontend (hopefully)
