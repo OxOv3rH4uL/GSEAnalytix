@@ -7,9 +7,14 @@ from app.repository.projects_repository import ProjectRepository
 from app.repository.devices_repository import DeviceRepository
 from app.services.device_service import DeviceService
 from app.schema.device_schema import DeviceCreateRequest, DeviceUpdateRequest, DeviceResponse
+from app.core.producer import StatusStreamProducer
+from app.helpers.redis_client import redis_client_status
+from app.schema.event_schema import Event
 from app.schema.api_reponse import APIResponse
 from app.core.exceptions_handler import error_response
 from app.core.exceptions import DeviceFoundError, DeviceNotFoundError, DatabaseError, ProjectNotFoundError
+
+
 
 device_router = APIRouter(
     prefix="/projects"
@@ -232,6 +237,40 @@ def delete_device(
         )
 
     except DatabaseError as e:
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+"""
+- /api/projects/{project_id}/devices/{device_id}/status
+ -{
+    "status" : "running"
+   } - > send the status event to redis
+"""
+
+@device_router.post(
+    "/{project_id}/devices/{device_id}/status",
+    response_class = JSONResponse,
+    status_code= status.HTTP_200_OK
+)
+def send_event(
+    device_id: UUID,
+    event: Event
+) -> JSONResponse:
+    streamer = StatusStreamProducer(redis_client_status)
+    eve = event.model_dump(mode="json")
+    eve["device_id"] = str(device_id)
+    try:
+        streamer.publish(
+            stream_name="device:status",
+            event=eve
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content = "Device Started Successfully!"
+        )
+    except Exception as e:
         return error_response(
             e=e,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR

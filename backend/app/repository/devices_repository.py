@@ -3,7 +3,10 @@ from sqlalchemy.orm import Session
 from app.models.devices import DevicesDB
 from decimal import Decimal
 from uuid import UUID
+from app.helpers.enums import DeviceStatus
 from app.core.logger import get_logger
+from app.core.exceptions import DeviceNotFoundError
+from sqlalchemy.exc import SQLAlchemyError
 
 logger = get_logger(__name__)
 
@@ -120,4 +123,36 @@ class DeviceRepository:
         self._db.delete(device)
         self._db.flush()
 
+
+    
+    def update_device_status(
+        self,
+        device_id: UUID,
+        status: DeviceStatus
+    ) -> DevicesDB:
+        """
+        Updating Device Status, directly used by consumers
+        """
+        logger.debug("Updating device status of device_id: %s", device_id)
+
+        try:
+            device = self.get_device_by_id(device_id=device_id)
+            if device is None:
+                raise DeviceNotFoundError(
+                    f"Device with device_id: {device_id} not found"
+                )
+            device.status = status
+            self._db.commit()
+            logger.info("Device with device_id: %s updated with status: %s", device_id, status)
+            self._db.flush()
+        
+        except DeviceNotFoundError:
+            logger.warning("Device with device_id: %s not found", device_id)
+            self._db.rollback()
+            raise
+
+        except SQLAlchemyError:
+            logger.exception("Database Error")
+            self._db.rollback()
+            raise
 
