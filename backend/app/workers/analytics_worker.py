@@ -1,5 +1,5 @@
 import asyncio
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from sqlalchemy.exc import SQLAlchemyError
 from app.repository.device_reading_repository import DeviceReadingRepository
 from app.repository.device_analytics_repository import DeviceAnalyticsRepository
@@ -31,7 +31,8 @@ class AnalyticsWorker:
 
         while True:
             event = await self._consumer.consume()
-
+            print("event consumed")
+            print(event)
             try:
                 reading = DeviceReadingSchema.model_validate(event)
 
@@ -73,7 +74,10 @@ class AnalyticsWorker:
                         Decimal(str(reading.power_kw)) *
                         Decimal(str(reading.duration))
                     )
-                    cost = total_energy * device.tariff_per_kwh
+                    cost = (total_energy * device.tariff_per_kwh).quantize(
+                        Decimal("0.01"),
+                        rounding=ROUND_HALF_UP
+                    )
 
                     analysis = DeviceAnalyticsSchema(
                         device_id = reading.device_id,
@@ -111,7 +115,7 @@ async def main():
 
     consumer = EventStreamConsumer(
         client=redis_client_events,
-        stream_name="device:events"
+        stream_name="device:readings"
     )
 
     analytics_worker = AnalyticsWorker(

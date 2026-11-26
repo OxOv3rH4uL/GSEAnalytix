@@ -15,7 +15,7 @@ class StatusStreamConsumer:
     async def consume(
         self
     ) -> dict:
-        _ , event = self._client.blpop(
+        _ , event = await self._client.blpop(
             self._stream,
             timeout=0
         )
@@ -38,7 +38,7 @@ class EventStreamConsumer:
         self
     ) -> dict:
 
-        _ , event = self._client.blpop(
+        _ , event = await self._client.blpop(
             self._stream,
             timeout=0
         )

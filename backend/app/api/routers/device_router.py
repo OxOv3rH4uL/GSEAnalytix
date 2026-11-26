@@ -268,7 +268,7 @@ def send_event(
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content = "Device Started Successfully!"
+            content = f"Device {event.status} Successfully!"
         )
     except Exception as e:
         return error_response(

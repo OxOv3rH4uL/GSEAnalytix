@@ -1,6 +1,6 @@
 from redis import Redis as event_redis
 from redis.asyncio import Redis as analyzer_redis
-
+import json
 
 class StatusStreamProducer:
 
@@ -15,10 +15,10 @@ class StatusStreamProducer:
         self,
         stream_name: str,
         event: dict[str,str]
-    ) -> str:
+    ) -> int:
         event_id = self._client.rpush(
-            name=stream_name,
-            fields=event
+            stream_name,
+            json.dumps(event)
         )
 
         return event_id
@@ -35,10 +35,10 @@ class EventsGenerationProducer:
         self,
         stream_name: str,
         event: dict[str,str]
-    ) -> str:
+    ) -> int:
 
         return self._client.rpush(
-            name= stream_name,
-            fields = event
+            stream_name,
+            json.dumps(event)
         )
         

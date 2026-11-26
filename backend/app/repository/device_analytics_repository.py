@@ -91,12 +91,13 @@ class DeviceAnalyticsRepository:
                 total_kwh = event.total_kwh,
                 total_cost = event.total_cost
             )
-            self._db.add(analysis)
         else:
             analysis.total_runtime += event.total_runtime
             analysis.total_cost += event.total_cost
             analysis.total_kwh += event.total_kwh
 
+        self._db.add(analysis)
+        self._db.commit()
         self._db.flush()
 
 

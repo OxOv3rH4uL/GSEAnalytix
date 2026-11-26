@@ -38,7 +38,6 @@ class DeviceReadingRepository:
                 duration=  event.duration
             )
             self._db.add(event)
-            self._db.commit()
             self._db.flush()
 
         except DeviceNotFoundError as e:

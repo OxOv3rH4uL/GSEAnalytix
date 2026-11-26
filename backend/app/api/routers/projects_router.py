@@ -246,7 +246,7 @@ def get_project_dashboard(
                 device.total_energy for device in devices
             ),
             total_cost= sum(
-                device.cost for device in devices
+                device.total_cost for device in devices
             )
         )
 

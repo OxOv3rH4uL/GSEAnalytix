@@ -65,6 +65,8 @@ class EventGeneratorWorker:
         """
         while True:
             event = await self._consumer.consume()
+            print(event)
+            print("event consumed")
 
             device_id = event["device_id"]
             status = event["status"]
@@ -104,7 +106,7 @@ class EventGeneratorWorker:
                     break
 
                 device_id = self._queue.popleft()
-
+                print("Got event now generating events!!")
                 reading = self.generate_readings(device_id=device_id)
                 self._queue.append(device_id)
 
@@ -114,7 +116,7 @@ class EventGeneratorWorker:
                 )
 
 
-            taken_time = asyncio.get_running_loop.time() - start_time
+            taken_time = asyncio.get_running_loop().time() - start_time
 
             await asyncio.sleep(
                 max(0,self._interval-taken_time)
