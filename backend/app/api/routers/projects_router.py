@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from app.helpers.db import get_db
 from uuid import UUID
 from app.repository.projects_repository import ProjectRepository
+from app.repository.device_analytics_repository import DeviceAnalyticsRepository
 from app.services.project_service import ProjectService
 from app.schema.api_reponse import APIResponse
 from app.core.exceptions_handler import error_response
 from app.schema.project_schema import ProjectCreateRequest, ProjectUpdateRequest, ProjectResponse
+from app.schema.dashboard_schema import DashboardSchema, ProjectAnalyticsSchema, ProjectDashboardSchema
 from app.core.exceptions import ProjectFoundError, ProjectNotFoundError, DatabaseError
 
 project_router = APIRouter(
@@ -202,6 +205,83 @@ def delete_project(
             e=e,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+"""
+- GET /api/projects/{project_id}/dashboard
+Gets the device analysis for that project
+"""
+@project_router.get(
+    "/{project_id}/dashboard",
+    response_model=APIResponse[ProjectDashboardSchema],
+    status_code=status.HTTP_200_OK
+)
+def get_project_dashboard(
+    project_id: UUID,
+    db: Session = Depends(get_db)
+) -> APIResponse[ProjectDashboardSchema]:
+    device_analytics_repo = DeviceAnalyticsRepository(db=db)
+    project_repo = ProjectRepository(db=db)
+    
+    try:
+        project = project_repo.get_project_by_id(project_id=project_id)
+
+        if project is None:
+            raise ProjectFoundError(f"Project with project_id: {project_id} not found")
+        result = device_analytics_repo.get_analysis_by_project_id(
+            project_id=project_id
+        )
+
+        devices = [
+            DashboardSchema.model_validate(device)
+            for device in result
+        ]
+
+        summary = ProjectAnalyticsSchema(
+            total_devices= len(devices),
+            total_runtime= sum(
+                device.total_runtime for device in devices
+            ),
+            total_energy= sum(
+                device.total_energy for device in devices
+            ),
+            total_cost= sum(
+                device.cost for device in devices
+            )
+        )
+
+        dashboard = ProjectDashboardSchema(
+            project_id=project_id,
+            project_name= project.project_name,
+            summary= summary,
+            devices = devices
+        )
+
+        return APIResponse(
+            message="Project Dashboard Created Successfully!",
+            data=dashboard
+        )
+
+    except ProjectNotFoundError as e:
+        return error_response(
+            e=e,
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    
+    except SQLAlchemyError as e:
+        return error_response(
+            e=e,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+        
+        
+
+
+
+        
+
+
 
 
 
