@@ -12,7 +12,7 @@ class DashboardSchema(BaseModel):
     total_runtime: float
     total_energy: float
     total_cost: Decimal
-    updated_at: datetime
+    updated_at: datetime | None = None
 
 class ProjectAnalyticsSchema(BaseModel):
 
