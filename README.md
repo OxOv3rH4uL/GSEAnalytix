@@ -16,6 +16,16 @@ Frontend
 -   TailwindCSS
 -   Axios
 
+# Architecture
+![Architecture](./assets/GSEAnalytix_Architecture.png)
+
+
+# Database Schema
+![Schema](./assets/GSE%20Schema.png)
+
+# Flow Diagram
+![Flow](./assets/GSE%20Flow.png)
+
 
 ## REST API
 

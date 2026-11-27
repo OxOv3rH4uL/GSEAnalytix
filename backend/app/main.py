@@ -1,8 +1,12 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.logger import setup_logging, get_logger
 from app.api.routers.projects_router import project_router as project
 from app.api.routers.device_router import device_router as devices
 from app.core.exceptions_handler import global_exceptions
+
+
+
 setup_logging()
 
 logger = get_logger(__name__)
@@ -11,6 +15,14 @@ app = FastAPI(
     title="GSEAnalytiX Backend API",
     description="Energy Analysis",
     version="1.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 app.add_exception_handler(
